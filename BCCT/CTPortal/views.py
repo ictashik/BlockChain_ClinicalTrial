@@ -7,35 +7,55 @@ import glob
 from cryptography.fernet import Fernet
 import json
 import pandas as pd
+from datetime import datetime
 
 # Create your views here.
 from django.http import HttpResponse
 
 
+KEY_FILE = 'key.csv'
+
+def load_or_generate_key():
+    if os.path.exists(KEY_FILE):
+        return pd.read_csv(KEY_FILE, header=None).values[0][0]
+    else:
+        key = Fernet.generate_key().decode('utf-8')
+        pd.DataFrame([key]).to_csv(KEY_FILE, index=False, header=False)
+        return key
+
+key = load_or_generate_key()
+
+# key = Fernet.generate_key().decode('utf-8')
+cipher_suite = Fernet(key.encode('utf-8'))
+
+
 def index(request):
-    print(key)
-    # create_blockchain(10)
+    print('Key Used ',key)
+    chain = 'test'
+    # create_blockchain(chain,10)
+    ChainDF = getchainDF(chain)
     # if __name__ == '__main__':
-    create_blockchain(15)
+    # create_blockchain('test',15)
     # verify_blockchain()
     ChainDataFrame = get_blockchain_data()
     ChainDataFrame.columns = ['PID','AGE','SEX','GRP','OCC','CMB','HB1','COM']
     ChainDataFrame = json.loads(ChainDataFrame.to_json(orient='records'))
+
+    NotesDF  = json.loads(ChainDF.to_json(orient='records'))
     # print(ChainDataFrame)
 
     if(verify_blockchain()):
         ChainStatusMessage = "Valid"
-        return render(request,'index.html',{'CHAIN':ChainStatusMessage,'CDF':ChainDataFrame})
+        return render(request,'index.html',{'CHAIN':ChainStatusMessage,'CDF':ChainDataFrame,'NDF':NotesDF})
     else:
         ChainStatusMessage = "InValid"
         return render(request,'index.html',{'CHAIN':ChainStatusMessage})
 
-# Generate a key for encryption and decryption
-# WARNING: In real-world applications, you need to securely manage and store this key
 
-key = Fernet.generate_key()
-print(key)
-cipher_suite = Fernet(key)
+def getchainDF(name):
+    ChainDF = pd.read_csv(name+'.csv')
+    return (ChainDF)
+
 
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, hash):
@@ -89,9 +109,13 @@ def load_block_from_file(filepath):
         lines = f.read().splitlines()
         return Block(int(lines[0]), lines[1], int(lines[2]), lines[3], lines[4])
 
-def create_blockchain(num_blocks_to_add):
+def create_blockchain(name,num_blocks_to_add):
+    chain_name = str(name)
+    # key = Fernet.generate_key()
     blockchain = [create_genesis_block()]
     previous_block = blockchain[0]
+
+    ChainDF = pd.DataFrame()
 
     for i in range(1, num_blocks_to_add+1):
         block_to_add = create_new_block(previous_block, {
@@ -108,7 +132,20 @@ def create_blockchain(num_blocks_to_add):
         previous_block = block_to_add
         print(f"Block #{block_to_add.index} has been added to the blockchain!")
         print(f"Hash: {block_to_add.hash}\n")
+        now = datetime.now()
+        
+        ChainDict = {
+        'Name' : chain_name,
+        'Key' : key,
+        'Time' : now.strftime("%d/%m/%Y %H:%M:%S"),
+        'Hash': block_to_add.hash,
+        'Mess' : f"Block #{block_to_add.index} Added",
+        }
+        IndDF = pd.DataFrame([ChainDict])
+        ChainDF = pd.concat([ChainDF,IndDF])
         save_block_to_file(block_to_add)
+    
+    ChainDF.to_csv(name+'.csv',index=False)
 
 def verify_blockchain(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)

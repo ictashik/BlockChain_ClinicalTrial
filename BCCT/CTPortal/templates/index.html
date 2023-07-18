@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
-    <title>BlockTrials - A BlockChain Enabled Clinical Trial Management System</title>
+    <title>BlockTrials - A BlockChain Based Clinical Trial Management System</title>
     <!-- Simple bar CSS -->
     <link rel="stylesheet" href="{% static 'CTPortal/css/simplebar.css' %}">
     <!-- Fonts CSS -->
@@ -37,7 +37,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-muted pr-0" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="avatar avatar-sm mt-2">
-                <img src="{% static 'CTPortal/assets/avatars/face-1.jpg' %}" alt="..." class="avatar-img rounded-circle">
+                <img src="{% static 'CTPortal/assets/avatars/face-1.png' %}" alt="..." class="avatar-img rounded-circle">
               </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
@@ -58,7 +58,7 @@
         <div class="container-fluid">
           <div class="row justify-content-center">
             <div class="col-12">
-              <h1 class="page-title">{{CHAIN}}</h1>
+              <h1 class="page-title"></h1>
           <div class="row">
 
               <div class="col-md-8 mb-4">
@@ -142,67 +142,28 @@
 
                 <div class="card shadow">
                   <div class="card-header">
-                    <strong class="card-title">Notification List</strong>
+                    <strong class="card-title">Block History</strong>
                     <a class="float-right small text-muted" href="#!">View all</a>
                   </div>
                   <div class="card-body">
                     <div class="list-group list-group-flush my-n3">
-                      <div class="list-group-item">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <span class="fe fe-box fe-24"></span>
+                      {% for m in NDF %}
+                          <div class="list-group-item">
+                            <div class="row align-items-center">
+                              <div class="col-auto">
+                                <span class="fe fe-box fe-24"></span>
+                              </div>
+                              <div class="col">
+                                <small><strong>{{m.Mess}}</strong></small>
+                                <div class="my-0 text-muted small">{{m.Hash}}</div>
+                              </div>
+                              <div class="col-auto">
+                                <small class="badge badge-pill badge-light text-muted">{{m.Time}}</small>
+                              </div>
+                            </div>
                           </div>
-                          <div class="col">
-                            <small><strong>Package has uploaded successfull</strong></small>
-                            <div class="my-0 text-muted small">Package is zipped and uploaded</div>
-                          </div>
-                          <div class="col-auto">
-                            <small class="badge badge-pill badge-light text-muted">1m ago</small>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="list-group-item">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <span class="fe fe-download fe-24"></span>
-                          </div>
-                          <div class="col">
-                            <small><strong>Widgets are updated successfull</strong></small>
-                            <div class="my-0 text-muted small">Just create new layout Index, form, table</div>
-                          </div>
-                          <div class="col-auto">
-                            <small class="badge badge-pill badge-light text-muted">2m ago</small>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="list-group-item">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <span class="fe fe-inbox fe-24"></span>
-                          </div>
-                          <div class="col">
-                            <small><strong>Notifications have been sent</strong></small>
-                            <div class="my-0 text-muted small">Fusce dapibus, tellus ac cursus commodo</div>
-                          </div>
-                          <div class="col-auto">
-                            <small class="badge badge-pill badge-light text-muted">30m ago</small>
-                          </div>
-                        </div> <!-- / .row -->
-                      </div>
-                      <div class="list-group-item">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <span class="fe fe-link fe-24"></span>
-                          </div>
-                          <div class="col">
-                            <small><strong>Link was attached to menu</strong></small>
-                            <div class="my-0 text-muted small">New layout has been attached to the menu</div>
-                          </div>
-                          <div class="col-auto">
-                            <small class="badge badge-pill badge-light text-muted">1h ago</small>
-                          </div>
-                        </div>
-                      </div> <!-- / .row -->
+                        {% endfor %}
+                  <!-- / .row -->
                     </div> <!-- / .list-group -->
                   </div> <!-- / .card-body -->
                 </div> <!-- / .card -->
