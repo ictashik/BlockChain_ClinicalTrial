@@ -13,23 +13,28 @@ from django.http import HttpResponse
 
 
 def index(request):
+    print(key)
     # create_blockchain(10)
     # if __name__ == '__main__':
-    create_blockchain(10)
+    create_blockchain(15)
     # verify_blockchain()
-    df = get_blockchain_data()
-    print(df)
+    ChainDataFrame = get_blockchain_data()
+    ChainDataFrame.columns = ['PID','AGE','SEX','GRP','OCC','CMB','HB1','COM']
+    ChainDataFrame = json.loads(ChainDataFrame.to_json(orient='records'))
+    # print(ChainDataFrame)
 
     if(verify_blockchain()):
-        return HttpResponse("Chain is Valid.")
+        ChainStatusMessage = "Valid"
+        return render(request,'index.html',{'CHAIN':ChainStatusMessage,'CDF':ChainDataFrame})
     else:
-        return HttpResponse("Invalid Chain")
-
-
+        ChainStatusMessage = "InValid"
+        return render(request,'index.html',{'CHAIN':ChainStatusMessage})
 
 # Generate a key for encryption and decryption
 # WARNING: In real-world applications, you need to securely manage and store this key
+
 key = Fernet.generate_key()
+print(key)
 cipher_suite = Fernet(key)
 
 class Block:
