@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{% static 'CTPortal/css/app-light.css' %}" id="lightTheme">
     <link rel="stylesheet" href="{% static 'CTPortal/css/app-dark.css' %}" id="darkTheme" disabled>
   </head>
-  <body class="vertical  light  ">
+  <body class="vertical  light ">
     <div class="wrapper">
       <nav class="topnav navbar navbar-light">
         <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
@@ -80,6 +80,46 @@
                           <span class="h3 mb-0 text-white">Valid</span>
                           <span class="small text-muted">Verified</span>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- <button type="button" class="btn mb-2 btn-success">Add New Block</button> -->
+                  <button type="button" class="btn mb-2 btn-outline-secondary" data-toggle="modal" data-target="#varyModal" data-whatever="@mdo">Add New Block</button>
+
+                  <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="varyModalLabel">Add New Block</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="SaveBlock" method="POST">
+
+                            {%csrf_token%}
+                            <div class="form-group mb-3"><label for="ParticipantEnrollmentNumber">ParticipantEnrollmentNumber </label><input type="text" id="ParticipantEnrollmentNumber" name="ParticipantEnrollmentNumber" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Group">Group </label><input type="text" id="Group" name="Group" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="DateofEnrollment">DateofEnrollment</label><input type="text" id="DateofEnrollment" name="DateofEnrollment" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Age">Age </label><input type="text" id="Age" name="Age" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Sex">Sex </label><input type="text" id="Sex" name="Sex" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Education">Education </label><input type="text" id="Education" name="Education" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Allergy">Allergy </label><input type="text" id="Allergy" name="Allergy" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Vaccine">Vaccine </label><input type="text" id="Vaccine" name="Vaccine" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="CoMorbidity">CoMorbidity </label><input type="text" id="CoMorbidity" name="CoMorbidity" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="FollowUpDate">FollowUpDate</label><input type="text" id="FollowUpDate" name="FollowUpDate" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="NoOfAntiHistamines">NoOfAntiHistamines</label><input type="text" id="NoOfAntiHistamines" name="NoOfAntiHistamines" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="LongCovidFatigueFollowUp">LongCovidFatigueFollowUp</label><input type="text" id="LongCovidFatigueFollowUp" name="LongCovidFatigueFollowUp" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="LongCovidFatigueFollowUpEnrollment">LongCovidFatigueFollowUpEnrollment</label><input type="text" id="LongCovidFatigueFollowUpEnrollment" name="LongCovidFatigueFollowUpEnrollment" class="form-control"></div>
+                            <div class="form-group mb-3"><label for="Consent">Consent </label><input type="text" id="Consent" name="Consent" class="form-control"></div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn mb-2 btn-primary">Save</button>
+                        </div>
+                      </form>
                       </div>
                     </div>
                   </div>

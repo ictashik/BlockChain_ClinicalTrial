@@ -33,7 +33,6 @@ key = load_or_generate_key()
 # key = Fernet.generate_key().decode('utf-8')
 cipher_suite = Fernet(key.encode('utf-8'))
 
-
 def index(request):
     # print('Key Used ',key)
     chain = 'test'
@@ -43,8 +42,21 @@ def index(request):
     # create_blockchain('test',15)
     # verify_blockchain()
     ChainDataFrame = get_blockchain_data()
-    ChainDataFrame.columns = ['ParticipantEnrollmentNumber','Group','DateofEnrollment','Age','Sex','Education','Allergy','Vaccine','CoMorbidity','FollowUpDate','NoOfAntiHistamines','LongCovidFatigueFollowUp','LongCovidFatigueFollowUpEnrollment','Consent']
+    
+    print(ChainDataFrame)
+
+    #define function to merge columns with same names together
+    def same_merge(x): return ','.join(x[x.notnull()].astype(str))
+
+    #define new DataFrame that merges columns with same names together
+    ChainDataFrame = ChainDataFrame.groupby(level=0, axis=1).apply(lambda x: x.apply(same_merge, axis=1))
+
+    ChainDataFrame.to_csv('tes1t.csv',index=False)
+    print(ChainDataFrame.columns)
+    # ChainDataFrame.columns = ['ParticipantEnrollmentNumber','Group','DateofEnrollment','Age','Sex','Education','Allergy','Vaccine','CoMorbidity','FollowUpDate','NoOfAntiHistamines','LongCovidFatigueFollowUp','LongCovidFatigueFollowUpEnrollment','Consent']
+    
     ChainDataFrame = json.loads(ChainDataFrame.to_json(orient='records'))
+    
 
     NotesDF  = json.loads(ChainDF.to_json(orient='records'))
     # print(ChainDataFrame)
@@ -76,17 +88,17 @@ def calculate_hash(index, previous_hash, timestamp, data):
 
 def create_genesis_block():
     data = encrypt_data({
-        "Participant Enrollment Number": "0",
+        "ParticipantEnrollmentNumber": "0",
         "Group": "None",
-        "DateofEnrollment":None,
+        "DateofEnrollment":"None",
         "Age": "0",
         "Sex": "None",
         "Education": "None",
         "Allergy": "None",
         "Vaccine": "None",
-        "Co Morbidity": "None",
+        "CoMorbidity": "None",
         "FollowUpDate": "None",
-        "NoOfAntiHistamines": 0,
+        "NoOfAntiHistamines": "0",
         "LongCovidFatigueFollowUp": "None",
         "LongCovidFatigueFollowUpEnrollment": "None",
         "Consent":"None",
@@ -99,6 +111,20 @@ def create_new_block(previous_block, data):
     timestamp = int(time.time())
     encrypted_data = encrypt_data(data)
     hash = calculate_hash(index, previous_block.hash, timestamp, encrypted_data)
+    now = datetime.now()
+
+    ChainDF = pd.read_csv('test.csv')
+    ChainDict = {
+        'Name' : 'test',
+        'Key' : key,
+        'Time' : now.strftime("%d/%m/%Y %H:%M:%S"),
+        'Hash': hash,
+        'Mess' : f"Block #{index} Added",
+        }
+    IndDF = pd.DataFrame([ChainDict])
+    ChainDF = pd.concat([ChainDF,IndDF])
+
+    ChainDF.to_csv('test.csv',index=False)
     return Block(index, previous_block.hash, timestamp, encrypted_data, hash)
 
 def encrypt_data(data):
@@ -131,7 +157,7 @@ def create_blockchain(name,num_blocks_to_add):
 
     for i in range(1, num_blocks_to_add+1):
         block_to_add = create_new_block(previous_block, {
-            "Participant Enrollment Number": "L" + str(i),
+            "ParticipantEnrollmentNumber": "L" + str(i),
             "Group": "A" if i%2 == 0 else "B",
             "DateofEnrollment":str(generate_random_date(start_date, end_date)),
             "Age": str(i*10),
@@ -139,7 +165,7 @@ def create_blockchain(name,num_blocks_to_add):
             "Education": "None",
             "Allergy": "Y" if i%2 == 0 else "N",
             "Vaccine": "Y" if i%2 == 0 else "N",
-            "Co Morbidity": "Y" if i%2 == 0 else "N",
+            "CoMorbidity": "Y" if i%2 == 0 else "N",
             "FollowUpDate": str(generate_random_date(start_date, end_date)),
             "NoOfAntiHistamines": i,
             "LongCovidFatigueFollowUp": "Y" if i%2 == 0 else "N",
@@ -202,3 +228,53 @@ def get_last_block_hash(folder='blocks'):
 def generate_random_date(start_date, end_date):
     return start_date + timedelta(
         seconds=random.randint(0, int((end_date - start_date).total_seconds())))
+
+def get_last_block(folder='blocks'):
+    block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
+    if block_files:
+        last_block = load_block_from_file(block_files[-1])
+        return last_block
+    else:
+        return None
+
+
+def get_last_block_hash(folder='blocks'):
+    block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
+    if block_files:
+        last_block = load_block_from_file(block_files[-1])
+        return last_block.hash
+    else:
+        return None
+
+# def create_new_block(previous_block, data):
+#     index = previous_block.index + 1
+#     timestamp = int(time.time())
+#     encrypted_data = encrypt_data(data)
+#     hash = calculate_hash(index, previous_block.hash, timestamp, encrypted_data)
+#     return Block(index, previous_block.hash, timestamp, encrypted_data, hash)
+
+
+
+def SaveBlock(request):
+    NewData = {
+        "ParticipantEnrollmentNumber" : str(request.POST.get('ParticipantEnrollmentNumber')),
+        "Group" : str(request.POST.get('Group')),
+        "DateofEnrollment" : str(request.POST.get('DateofEnrollment')),
+        "Age" : str(request.POST.get('Age')),
+        "Sex" : str(request.POST.get('Sex')),
+        "Education" : str(request.POST.get('Education')),
+        "Allergy" : str(request.POST.get('Allergy')),
+        "Vaccine" : str(request.POST.get('Vaccine')),
+        "CoMorbidity" : str(request.POST.get('CoMorbidity')),
+        "FollowUpDate" : str(request.POST.get('FollowUpDate')),
+        "NoOfAntiHistamines" : str(request.POST.get('NoOfAntiHistamines')),
+        "LongCovidFatigueFollowUp" : str(request.POST.get('LongCovidFatigueFollowUp')),
+        "LongCovidFatigueFollowUpEnrollment" : str(request.POST.get('LongCovidFatigueFollowUpEnrollment')),
+        "Consent" : str(request.POST.get('Consent')),
+    }
+
+    # print(NewData)
+    save_block_to_file(create_new_block(get_last_block(), NewData))
+
+
+    return index(request)
