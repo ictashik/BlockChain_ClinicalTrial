@@ -61,43 +61,8 @@
               <h1 class="page-title"></h1>
           <div class="row">
 
-              <div class="col-md-8 mb-4">
-                <div class="card shadow">
-                  <div class="card-body">
-                    <h5 class="card-title">Chain Data</h5>
-                    <p class="card-text"> 
-                    </p>
-                    <table class="table table-hover">
-                      <thead class="thead-dark">
-                        <tr>
-                          <th>Participant ID</th>
-                          <th>Age</th>
-                          <th>Sex</th>
-                          <th>Group</th>
-                          <th>Occupation</th>
-                          <th>Co Morbidity</th>
-                          <th>Hemoglobin Level</th>
-                          <th>Compliance</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for x in CDF %}
-                          <tr>
-                            <td>{{x.PID}}</td>
-                            <td>{{x.AGE}}</td>
-                            <td>{{x.SEX}}</td>
-                            <td>{{x.GRP}}</td>
-                            <td>{{x.OCC}}</td>
-                            <td>{{x.CMB}}</td>
-                            <td>{{x.HB1}}</td>
-                            <td>{{x.COM}}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+              
+
               <div class="col-md-4 mb-4">
 
                 {% if CHAIN == 'Valid' %}
@@ -139,6 +104,8 @@
                   </div>
 
                   {% endif %}
+                </div>
+                <div class="col-md-8 mb-4">
 
                 <div class="card shadow">
                   <div class="card-header">
@@ -167,8 +134,61 @@
                     </div> <!-- / .list-group -->
                   </div> <!-- / .card-body -->
                 </div> <!-- / .card -->
+
+              </div>
               </div>
 
+            </div>
+            <div class="row">
+              <div class="col-md-12 mb-4">
+                <div class="card shadow">
+                  <div class="card-body">
+                    <h5 class="card-title">Chain Data</h5>
+                    <p class="card-text"> 
+                    </p>
+                    <table class="table table-hover">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th>ID</th>
+                          <th>Group</th>
+                          <th>Date of Enrollment</th>
+                          <th>Age</th>
+                          <th>Sex</th>
+                          <th>Education</th>
+                          <th>Allergy</th>
+                          <th>Vaccine</th>
+                          <th>Co Morbidity</th>
+                          <th>Follow Up Date </th>
+                          <th>No Of Anti Histamines </th>
+                          <th>Long Covid Fatigue FollowUp </th>
+                          <th>Long CovidFatigue FollowUp Enrollment </th>
+                          <th>Consent</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for x in CDF %}
+                          <tr>
+                            <td>{{x.ParticipantEnrollmentNumber}}</td>
+                            <td>{{x.Group}}</td>
+                            <td>{{x.DateofEnrollment}}</td>
+                            <td>{{x.Age}}</td>
+                            <td>{{x.Sex}}</td>
+                            <td>{{x.Education}}</td>
+                            <td>{{x.Allergy}}</td>
+                            <td>{{x.Vaccine}}</td>
+                            <td>{{x.CoMorbidity}}</td>
+                            <td>{{x.FollowUpDate}}</td>
+                            <td>{{x.NoOfAntiHistamines}}</td>
+                            <td>{{x.LongCovidFatigueFollowUp}}</td>
+                            <td>{{x.LongCovidFatigueFollowUpEnrollment}}</td>
+                            <td>{{x.Consent}}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
             </div> <!-- .col-12 -->
           </div> <!-- .row -->

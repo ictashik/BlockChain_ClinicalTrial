@@ -7,13 +7,18 @@ import glob
 from cryptography.fernet import Fernet
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime,timedelta
+import random
 
 # Create your views here.
 from django.http import HttpResponse
 
 
 KEY_FILE = 'key.csv'
+
+start_date = datetime(2019, 1, 1)
+end_date = datetime(2020, 12, 31)
+
 
 def load_or_generate_key():
     if os.path.exists(KEY_FILE):
@@ -30,7 +35,7 @@ cipher_suite = Fernet(key.encode('utf-8'))
 
 
 def index(request):
-    print('Key Used ',key)
+    # print('Key Used ',key)
     chain = 'test'
     # create_blockchain(chain,10)
     ChainDF = getchainDF(chain)
@@ -38,7 +43,7 @@ def index(request):
     # create_blockchain('test',15)
     # verify_blockchain()
     ChainDataFrame = get_blockchain_data()
-    ChainDataFrame.columns = ['PID','AGE','SEX','GRP','OCC','CMB','HB1','COM']
+    ChainDataFrame.columns = ['ParticipantEnrollmentNumber','Group','DateofEnrollment','Age','Sex','Education','Allergy','Vaccine','CoMorbidity','FollowUpDate','NoOfAntiHistamines','LongCovidFatigueFollowUp','LongCovidFatigueFollowUpEnrollment','Consent']
     ChainDataFrame = json.loads(ChainDataFrame.to_json(orient='records'))
 
     NotesDF  = json.loads(ChainDF.to_json(orient='records'))
@@ -71,14 +76,21 @@ def calculate_hash(index, previous_hash, timestamp, data):
 
 def create_genesis_block():
     data = encrypt_data({
-        "Participant ID": "0",
+        "Participant Enrollment Number": "0",
+        "Group": "None",
+        "DateofEnrollment":None,
         "Age": "0",
         "Sex": "None",
-        "Group": "None",
-        "Occupation": "None",
+        "Education": "None",
+        "Allergy": "None",
+        "Vaccine": "None",
         "Co Morbidity": "None",
-        "Hemoglobin Level": "None",
-        "Compliance": "None"
+        "FollowUpDate": "None",
+        "NoOfAntiHistamines": 0,
+        "LongCovidFatigueFollowUp": "None",
+        "LongCovidFatigueFollowUpEnrollment": "None",
+        "Consent":"None",
+        
     })
     return Block(0, "0", int(time.time()), data, calculate_hash(0, "0", int(time.time()), data))
 
@@ -119,14 +131,20 @@ def create_blockchain(name,num_blocks_to_add):
 
     for i in range(1, num_blocks_to_add+1):
         block_to_add = create_new_block(previous_block, {
-            "Participant ID": str(i),
+            "Participant Enrollment Number": "L" + str(i),
+            "Group": "A" if i%2 == 0 else "B",
+            "DateofEnrollment":str(generate_random_date(start_date, end_date)),
             "Age": str(i*10),
             "Sex": "M" if i%2 == 0 else "F",
-            "Group": "A" if i%2 == 0 else "B",
-            "Occupation": f"Occupation {i}",
-            "Co Morbidity": f"Co Morbidity {i}",
-            "Hemoglobin Level": str(i*10),
-            "Compliance": "Yes"
+            "Education": "None",
+            "Allergy": "Y" if i%2 == 0 else "N",
+            "Vaccine": "Y" if i%2 == 0 else "N",
+            "Co Morbidity": "Y" if i%2 == 0 else "N",
+            "FollowUpDate": str(generate_random_date(start_date, end_date)),
+            "NoOfAntiHistamines": i,
+            "LongCovidFatigueFollowUp": "Y" if i%2 == 0 else "N",
+            "LongCovidFatigueFollowUpEnrollment": "Y" if i%2 == 0 else "N",
+            "Consent":"Y",
         })
         blockchain.append(block_to_add)
         previous_block = block_to_add
@@ -173,3 +191,14 @@ def get_blockchain_data(folder='blocks'):
         blockchain_data.append(decrypted_data)
     return pd.DataFrame(blockchain_data)
 
+def get_last_block_hash(folder='blocks'):
+    block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
+    if block_files:
+        last_block = load_block_from_file(block_files[-1])
+        return last_block.hash
+    else:
+        return None
+
+def generate_random_date(start_date, end_date):
+    return start_date + timedelta(
+        seconds=random.randint(0, int((end_date - start_date).total_seconds())))
