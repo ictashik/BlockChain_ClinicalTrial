@@ -51,6 +51,13 @@ def index(request):
     #define new DataFrame that merges columns with same names together
     ChainDataFrame = ChainDataFrame.groupby(level=0, axis=1).apply(lambda x: x.apply(same_merge, axis=1))
 
+    ChainDataFrame =ChainDataFrame.sort_values(by=['ParticipantEnrollmentNumber']) 
+
+    ParticipantsCount = ChainDataFrame['ParticipantEnrollmentNumber'].count()
+    MaleCount = ChainDataFrame[ChainDataFrame['Sex'] == 'M']['ParticipantEnrollmentNumber'].count()
+    FeMaleCount = ChainDataFrame[ChainDataFrame['Sex'] == 'F']['ParticipantEnrollmentNumber'].count()
+    OthersCount = ChainDataFrame[ChainDataFrame['Sex'] == 'O']['ParticipantEnrollmentNumber'].count()
+
     ChainDataFrame.to_csv('tes1t.csv',index=False)
     print(ChainDataFrame.columns)
     # ChainDataFrame.columns = ['ParticipantEnrollmentNumber','Group','DateofEnrollment','Age','Sex','Education','Allergy','Vaccine','CoMorbidity','FollowUpDate','NoOfAntiHistamines','LongCovidFatigueFollowUp','LongCovidFatigueFollowUpEnrollment','Consent']
@@ -63,7 +70,8 @@ def index(request):
 
     if(verify_blockchain()):
         ChainStatusMessage = "Valid"
-        return render(request,'index.html',{'CHAIN':ChainStatusMessage,'CDF':ChainDataFrame,'NDF':NotesDF})
+        return render(request,'index.html',{'CHAIN':ChainStatusMessage,'CDF':ChainDataFrame,'NDF':NotesDF,'ParticipantsCount':ParticipantsCount,'MaleCount':MaleCount,
+                                            'FeMaleCount':FeMaleCount,'OthersCount':OthersCount,})
     else:
         ChainStatusMessage = "InValid"
         return render(request,'index.html',{'CHAIN':ChainStatusMessage})
