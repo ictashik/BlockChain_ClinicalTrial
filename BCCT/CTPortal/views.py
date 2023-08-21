@@ -245,7 +245,6 @@ def get_last_block(folder='blocks'):
     else:
         return None
 
-
 def get_last_block_hash(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
     if block_files:
