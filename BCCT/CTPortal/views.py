@@ -28,9 +28,10 @@ import random
 # Create your views here.
 from django.http import HttpResponse
 
-
+#Key File Path
 KEY_FILE = 'key.csv'
 
+#Random Date Generation Start and End Date. 
 start_date = datetime(2019, 1, 1)
 end_date = datetime(2020, 12, 31)
 
