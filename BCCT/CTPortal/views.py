@@ -1,3 +1,18 @@
+########################################################### Backend for Python - Clinical Trial Blockchain Implementaion ########################################################################
+# Developed on the Django Framework with Python, this prototype leverages encryption libraries, such as hashlib and cryptography, to ensure data integrity. The core                            #
+# infrastructure is an emulated file-based blockchain network, designed to synchronize the changes in one system to all other systems in the chain. This demonstrates                           #
+# important blockchain benefits, including immutability, full traceability, and transparency. We used the methodology of a clinical trial on Long COVID conducted at                            #
+# St. Johns Medical College, Bengaluru, to emulate the working of a clinical trial. (Supplementary file)                                                                                        #
+#                                                                                                                                                                                               #
+# The detailed description of the methodology and Python codes are open sourced and posted in the GitHub repository (https://github.com/ictashik/BlockChain_ClinicalTrial).                     #
+# Briefly, the views.py file contains the basic backend of the code. The building block of the code is the class named Block, and each block indicates the full data of one participant.        #
+# Function load_or_generate_key() either retrieves an existing encryption key or crafts a new one. The foundation of the blockchain is established via create_genesis_block(), while            #
+# create_new_block(previous_block, data) appends subsequent blocks. Data confidentiality is upheld through encrypt_data(data) and decrypt_data(encrypted_data) utilizing Fernet encryption.     #
+# The persistence of blocks in the system is managed by save_block_to_file(block) and load_block_from_file(filepath). The verify_blockchain() function ascertains the blockchain's consistency. #
+# For user interaction, SaveBlock(request) captures new block data through a form interface. Although the proof-of-concept demonstrates the feasibility of integrating blockchain principles    #
+# into clinical trial processes through a web portal, this model is preliminary and not suited for production deployment.                                                                       #
+#################################################################################################################################################################################################
+
 from django.shortcuts import render
 
 import hashlib
