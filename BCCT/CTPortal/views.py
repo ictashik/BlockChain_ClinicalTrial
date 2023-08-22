@@ -34,8 +34,9 @@ key = load_or_generate_key()
 cipher_suite = Fernet(key.encode('utf-8'))
 
 def index(request):
-    # print('Key Used ',key)
+    #Name of the Chain
     chain = 'test'
+
     # create_blockchain(chain,10)
     ChainDF = getchainDF(chain)
     # if __name__ == '__main__':
@@ -50,9 +51,9 @@ def index(request):
 
     #define new DataFrame that merges columns with same names together
     ChainDataFrame = ChainDataFrame.groupby(level=0, axis=1).apply(lambda x: x.apply(same_merge, axis=1))
-
     ChainDataFrame =ChainDataFrame.sort_values(by=['ParticipantEnrollmentNumber']) 
 
+    #Data Analytics
     ParticipantsCount = ChainDataFrame['ParticipantEnrollmentNumber'].count()
     MaleCount = ChainDataFrame[ChainDataFrame['Sex'] == 'M']['ParticipantEnrollmentNumber'].count()
     FeMaleCount = ChainDataFrame[ChainDataFrame['Sex'] == 'F']['ParticipantEnrollmentNumber'].count()
@@ -76,12 +77,12 @@ def index(request):
         ChainStatusMessage = "InValid"
         return render(request,'index.html',{'CHAIN':ChainStatusMessage})
 
-
+#Converts the CSV into Pandas Dataframe. CSV is for comparison with the chain data. Even if your Chain becomes invalid you can check the the csb file. 
 def getchainDF(name):
     ChainDF = pd.read_csv(name+'.csv')
     return (ChainDF)
 
-
+#Class Definition
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, hash):
         self.index = index
@@ -90,10 +91,12 @@ class Block:
         self.data = data
         self.hash = hash
 
+# SHA 256 Hash Calculation for the Block Data
 def calculate_hash(index, previous_hash, timestamp, data):
     value = str(index) + str(previous_hash) + str(timestamp) + data
     return hashlib.sha256(value.encode('utf-8')).hexdigest()
 
+#Creating the Genesis Block. Using Empty Data. 'data' is the dictionary that contains empty data. 
 def create_genesis_block():
     data = encrypt_data({
         "ParticipantEnrollmentNumber": "0",
@@ -112,8 +115,10 @@ def create_genesis_block():
         "Consent":"None",
         
     })
+    #Calling the constructor for creating a Block object. 
     return Block(0, "0", int(time.time()), data, calculate_hash(0, "0", int(time.time()), data))
 
+#Creates a New Block. The Previous Hash and Data are the inputs. 
 def create_new_block(previous_block, data):
     index = previous_block.index + 1
     timestamp = int(time.time())
@@ -121,6 +126,7 @@ def create_new_block(previous_block, data):
     hash = calculate_hash(index, previous_block.hash, timestamp, encrypted_data)
     now = datetime.now()
 
+    #Adding the same Data to CSV for Reference.
     ChainDF = pd.read_csv('test.csv')
     ChainDict = {
         'Name' : 'test',
@@ -135,26 +141,32 @@ def create_new_block(previous_block, data):
     ChainDF.to_csv('test.csv',index=False)
     return Block(index, previous_block.hash, timestamp, encrypted_data, hash)
 
+#The Data in the Dictionary is encrypted using Fernet Encryption. 
 def encrypt_data(data):
     data_str = json.dumps(data)
     encrypted_data = cipher_suite.encrypt(data_str.encode('utf-8'))
     return encrypted_data.decode('utf-8')
 
+#The Data in the Dictionary is decrypted using Fernet decryption. 
 def decrypt_data(encrypted_data):
     decrypted_data = cipher_suite.decrypt(encrypted_data.encode('utf-8'))
     return json.loads(decrypted_data)
 
+#Saving the Block as a txt file. 
 def save_block_to_file(block, folder='blocks'):
     os.makedirs(folder, exist_ok=True)
     data = [str(block.index), block.previous_hash, str(block.timestamp), block.data, block.hash]
     with open(f'{folder}/block_{block.index}.txt', 'w') as f:
         f.write('\n'.join(data))
 
+#Reading the file to get the block contents
 def load_block_from_file(filepath):
     with open(filepath, 'r') as f:
         lines = f.read().splitlines()
+        #Calling class constructor to return the Block.
         return Block(int(lines[0]), lines[1], int(lines[2]), lines[3], lines[4])
 
+#Creating New Blockchain. 
 def create_blockchain(name,num_blocks_to_add):
     chain_name = str(name)
     # key = Fernet.generate_key()
@@ -163,6 +175,8 @@ def create_blockchain(name,num_blocks_to_add):
 
     ChainDF = pd.DataFrame()
 
+
+    #Test Data Generation. Completely Random
     for i in range(1, num_blocks_to_add+1):
         block_to_add = create_new_block(previous_block, {
             "ParticipantEnrollmentNumber": "L" + str(i),
@@ -186,6 +200,7 @@ def create_blockchain(name,num_blocks_to_add):
         print(f"Hash: {block_to_add.hash}\n")
         now = datetime.now()
         
+        #The Same Data is saved as a CSV file for Reference.
         ChainDict = {
         'Name' : chain_name,
         'Key' : key,
@@ -199,6 +214,8 @@ def create_blockchain(name,num_blocks_to_add):
     
     ChainDF.to_csv(name+'.csv',index=False)
 
+
+# Verification of the Integrity of the Blockchain. If any of the hashes don't match, this function will return False.
 def verify_blockchain(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
     previous_hash = None
@@ -206,6 +223,7 @@ def verify_blockchain(folder='blocks'):
         block = load_block_from_file(block_file)
         decrypted_data = decrypt_data(block.data)
         block_hash = calculate_hash(block.index, block.previous_hash, block.timestamp, block.data)
+        #Checks if the previous block's hash and that marked in the current block is same. 
         if previous_hash is not None and previous_hash != block.previous_hash:
             print(f"Invalid block #{block.index}.")
             return False
@@ -216,6 +234,7 @@ def verify_blockchain(folder='blocks'):
     print("Blockchain is valid.")
     return True
 
+#Getting the Blockchain Data into pandas Dataframe.
 def get_blockchain_data(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
     blockchain_data = []
@@ -225,6 +244,7 @@ def get_blockchain_data(folder='blocks'):
         blockchain_data.append(decrypted_data)
     return pd.DataFrame(blockchain_data)
 
+#Getting the Hash of last Block. 
 def get_last_block_hash(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
     if block_files:
@@ -233,10 +253,12 @@ def get_last_block_hash(folder='blocks'):
     else:
         return None
 
+#Random Date Generation
 def generate_random_date(start_date, end_date):
     return start_date + timedelta(
         seconds=random.randint(0, int((end_date - start_date).total_seconds())))
 
+#Returns the Last Block as Object.
 def get_last_block(folder='blocks'):
     block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
     if block_files:
@@ -245,23 +267,8 @@ def get_last_block(folder='blocks'):
     else:
         return None
 
-def get_last_block_hash(folder='blocks'):
-    block_files = sorted(glob.glob(f'{folder}/*.txt'), key=os.path.getmtime)
-    if block_files:
-        last_block = load_block_from_file(block_files[-1])
-        return last_block.hash
-    else:
-        return None
 
-# def create_new_block(previous_block, data):
-#     index = previous_block.index + 1
-#     timestamp = int(time.time())
-#     encrypted_data = encrypt_data(data)
-#     hash = calculate_hash(index, previous_block.hash, timestamp, encrypted_data)
-#     return Block(index, previous_block.hash, timestamp, encrypted_data, hash)
-
-
-
+#Saving a New Block. This utilized the Data transferred through POST. request is the input for this function. this should be called through Django Frontend. 
 def SaveBlock(request):
     NewData = {
         "ParticipantEnrollmentNumber" : str(request.POST.get('ParticipantEnrollmentNumber')),

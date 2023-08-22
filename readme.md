@@ -53,8 +53,8 @@ python manage.py runserver
 
 ## Note:
 
-Make sure to keep your encryption key (`key.csv`) secure and do not share or lose it, as it's essential for data encryption and decryption in the blockchain.
+Make sure to keep your encryption key (`key.csv`) secure and do not share or lose it, as it's essential for data encryption and decryption in the blockchain. The key is only associated with the data encryption. Even if you lose the key. the Chain will be still valid. but the data won't be readable. 
 
 ---
 
-This README provides an overview of your application and its functionalities. Adjustments can be made based on any additional features or nuances of your application that weren't captured in the provided code.
+This README provides an overview of your application and its functionalities.
