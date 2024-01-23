@@ -1,0 +1,19 @@
+FROM python:3.9-slim
+ENV PYTHONUNBUFFERED 1
+# Create app directory
+RUN mkdir /app
+WORKDIR /app
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# Copy the BCCT directory contents into the container at /app
+COPY BCCT/ ./
+# Expose port 8000 to the world outside this container
+EXPOSE 8000
+# Define environment variable
+ENV NAME World
+# Apply database migrations
+RUN python manage.py migrate
+# Set the entry point and default command
+ENTRYPOINT ["python", "manage.py"]
+CMD ["runserver", "0.0.0.0:8000"]
